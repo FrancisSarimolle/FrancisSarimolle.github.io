@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analisis Naive Bayes - Prediksi Golf</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .confusion-matrix th, .confusion-matrix td {
+            border: 1px solid #e5e7eb;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .table-scroll {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Dashboard Analisis Klasifikasi Naive Bayes</h1>
+            <p class="mt-2 text-lg text-gray-600">Studi Kasus: Prediksi Keputusan Bermain Golf - by : Francis M S</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Kolom Kiri: Data & Performa -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Data Latih -->
+                <div class="card">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">Data Latih (14 Hari)</h2>
+                    <div class="overflow-auto max-h-80 text-sm">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-100 sticky top-0">
+                                <tr>
+                                    <th class="p-2 rounded-tl-lg">Cuaca</th>
+                                    <th class="p-2">Suhu</th>
+                                    <th class="p-2">Kelembaban</th>
+                                    <th class="p-2 rounded-tr-lg">Main Golf</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data rows -->
+                                <tr class="border-b"><td class="p-2">Cerah</td><td class="p-2">Panas</td><td class="p-2">Tinggi</td><td class="p-2 font-medium text-red-600">Tidak</td></tr>
+                                <tr class="border-b"><td class="p-2">Cerah</td><td class="p-2">Panas</td><td class="p-2">Tinggi</td><td class="p-2 font-medium text-red-600">Tidak</td></tr>
+                                <tr class="border-b"><td class="p-2">Berawan</td><td class="p-2">Panas</td><td class="p-2">Tinggi</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Hujan</td><td class="p-2">Sejuk</td><td class="p-2">Tinggi</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Hujan</td><td class="p-2">Dingin</td><td class="p-2">Normal</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Hujan</td><td class="p-2">Dingin</td><td class="p-2">Normal</td><td class="p-2 font-medium text-red-600">Tidak</td></tr>
+                                <tr class="border-b"><td class="p-2">Berawan</td><td class="p-2">Dingin</td><td class="p-2">Normal</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Cerah</td><td class="p-2">Sejuk</td><td class="p-2">Tinggi</td><td class="p-2 font-medium text-red-600">Tidak</td></tr>
+                                <tr class="border-b"><td class="p-2">Cerah</td><td class="p-2">Dingin</td><td class="p-2">Normal</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Hujan</td><td class="p-2">Sejuk</td><td class="p-2">Normal</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Cerah</td><td class="p-2">Sejuk</td><td class="p-2">Normal</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Berawan</td><td class="p-2">Sejuk</td><td class="p-2">Tinggi</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr class="border-b"><td class="p-2">Berawan</td><td class="p-2">Panas</td><td class="p-2">Normal</td><td class="p-2 font-medium text-green-600">Ya</td></tr>
+                                <tr><td class="p-2">Hujan</td><td class="p-2">Sejuk</td><td class="p-2">Tinggi</td><td class="p-2 font-medium text-red-600">Tidak</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Performa Model -->
+                <div class="card">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">Performa Model Naive Bayes</h2>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div><p class="text-2xl font-bold text-blue-600">85.7%</p><p class="text-sm text-gray-500">Akurasi (CA)</p></div>
+                        <div><p class="text-2xl font-bold text-blue-600">0.857</p><p class="text-sm text-gray-500">F1 Score</p></div>
+                        <div><p class="text-2xl font-bold text-blue-600">0.857</p><p class="text-sm text-gray-500">Precision</p></div>
+                        <div><p class="text-2xl font-bold text-blue-600">0.857</p><p class="text-sm text-gray-500">Recall</p></div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t">
+                        <h3 class="font-semibold text-gray-700 mb-2">Perbandingan Hasil Prediksi vs Data Asli</h3>
+                        <p class="text-sm text-gray-500 mb-3">Tabel ini menunjukkan hasil tebakan model untuk setiap baris data latih, yang menjadi dasar dari Confusion Matrix.</p>
+                        <div class="overflow-auto max-h-60 text-sm mb-6 border rounded-lg">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-100 sticky top-0">
+                                    <tr>
+                                        <th class="p-2">Hari</th>
+                                        <th class="p-2">Data Asli</th>
+                                        <th class="p-2">Prediksi Model</th>
+                                        <th class="p-2">Hasil</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b"><td class="p-2">1</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">2</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">3</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b bg-red-50"><td class="p-2">4</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 font-bold text-red-700">Salah (FN)</td></tr>
+                                    <tr class="border-b"><td class="p-2">5</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b bg-red-50"><td class="p-2">6</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-bold text-red-700">Salah (FP)</td></tr>
+                                    <tr class="border-b"><td class="p-2">7</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">8</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">9</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">10</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">11</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">12</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr class="border-b"><td class="p-2">13</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 font-medium text-green-600">Ya</td><td class="p-2 text-green-600">Benar</td></tr>
+                                    <tr><td class="p-2">14</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 font-medium text-red-600">Tidak</td><td class="p-2 text-green-600">Benar</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h3 class="font-semibold text-gray-700 mb-2">Dasar Perhitungan: Confusion Matrix</h3>
+                        <table class="w-full text-sm confusion-matrix">
+                            <thead>
+                                <tr> <th class="bg-gray-50" colspan="2"></th> <th class="bg-gray-100" colspan="2">Prediksi Model</th> </tr>
+                                <tr> <th class="bg-gray-50" colspan="2"></th> <th class="bg-green-100">Ya</th> <th class="bg-red-100">Tidak</th> </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th class="bg-gray-100" rowspan="2">Data Asli</th>
+                                    <th class="bg-green-100">Ya</th>
+                                    <td class="font-bold">8 <br><span class="text-xs font-normal">(True Positive)</span></td>
+                                    <td>1 <br><span class="text-xs font-normal">(False Negative)</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-red-100">Tidak</th>
+                                    <td>1 <br><span class="text-xs font-normal">(False Positive)</span></td>
+                                    <td class="font-bold">4 <br><span class="text-xs font-normal">(True Negative)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="mt-4 pt-4 border-t">
+                             <h3 class="font-semibold text-gray-700 mb-2">Penjelasan Detail Perhitungan Metrik</h3>
+                             <div class="font-mono text-xs space-y-3">
+                                <p><strong>- True Positive (TP) = 8:</strong> Ada 8 hari di mana data asli 'Ya' dan model dengan benar memprediksi 'Ya'.</p>
+                                <p><strong>- True Negative (TN) = 4:</strong> Ada 4 hari di mana data asli 'Tidak' dan model dengan benar memprediksi 'Tidak'.</p>
+                                <p><strong>- False Positive (FP) = 1:</strong> Ada 1 hari (baris ke-6) di mana data asli 'Tidak', tetapi model salah memprediksi 'Ya'.</p>
+                                <p><strong>- False Negative (FN) = 1:</strong> Ada 1 hari (baris ke-4) di mana data asli 'Ya', tetapi model salah memprediksi 'Tidak'.</p>
+                             </div>
+                             <div class="mt-4 pt-4 border-t font-mono text-xs space-y-2">
+                                <p><strong>Akurasi:</strong> "Berapa persen tebakan benar dari total?"<br> (TP+TN)/(Total) = (8+4)/14 = <strong>0.857</strong></p>
+                                <p><strong>Precision (untuk kelas 'Ya'):</strong> "Dari semua yang diprediksi 'Ya', berapa yang benar?"<br> TP/(TP+FP) = 8/(8+1) = <strong>0.889</strong></p>
+                                <p><strong>Recall (untuk kelas 'Ya'):</strong> "Dari semua yang seharusnya 'Ya', berapa yang berhasil ditebak?"<br> TP/(TP+FN) = 8/(8+1) = <strong>0.889</strong></p>
+                                <p class="text-gray-500 text-[10px] mt-2">*Nilai Precision, Recall, F1 Score (0.857) di atas adalah rata-rata terbobot (weighted avg) dari kedua kelas ('Ya' dan 'Tidak') seperti yang dihitung oleh Orange.</p>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Analisis Prediksi -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Hasil Prediksi -->
+                <div class="card">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">Analisis Prediksi untuk Data Baru</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <!-- Data yang Diuji -->
+                        <div>
+                            <h3 class="font-semibold mb-3 text-gray-700">Kondisi Data Baru (Hari ke-15):</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><strong>Cuaca:</strong> <span class="font-mono bg-gray-100 px-2 py-1 rounded">Cerah</span></li>
+                                <li><strong>Suhu:</strong> <span class="font-mono bg-gray-100 px-2 py-1 rounded">Sejuk</span></li>
+                                <li><strong>Kelembaban:</strong> <span class="font-mono bg-gray-100 px-2 py-1 rounded">Tinggi</span></li>
+                                <li><strong>Berangin:</strong> <span class="font-mono bg-gray-100 px-2 py-1 rounded">Ya</span></li>
+                            </ul>
+                        </div>
+                        <!-- Hasil Prediksi -->
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-500 mb-2">Prediksi Model</p>
+                            <p class="text-5xl font-bold text-red-600">TIDAK</p>
+                            <p class="text-sm text-gray-500 mt-2">Main Golf</p>
+                            <div class="w-full bg-gray-200 rounded-full h-6 mt-4 flex overflow-hidden">
+                                <div id="prob-tidak" class="flex items-center justify-center h-full bg-red-500 text-white text-xs font-bold" style="width: 85.4%;">85.4%</div>
+                                <div id="prob-ya" class="flex items-center justify-center h-full bg-green-500 text-white text-xs font-bold" style="width: 14.6%;">14.6%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rincian Perhitungan -->
+                <div class="card">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">Rincian Perhitungan Model (Implementasi Rumus)</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Frekuensi dan Likelihood -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700">1. Frekuensi & Probabilitas Likelihood</h3>
+                            <p class="text-sm text-gray-500 mt-1">Langkah pertama adalah menghitung frekuensi dan probabilitas setiap fitur berdasarkan kelasnya dari data latih.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
+                                <!-- Tabel Frekuensi -->
+                                <div>
+                                    <h4 class="font-medium text-sm mb-2">A. Tabel Frekuensi Atribut</h4>
+                                    <div class="overflow-auto max-h-60 text-sm border rounded-lg">
+                                        <table class="w-full text-left">
+                                            <thead class="bg-gray-100 sticky top-0">
+                                                <tr>
+                                                    <th class="p-2">Atribut</th>
+                                                    <th class="p-2 text-center">Ya</th>
+                                                    <th class="p-2 text-center">Tidak</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="border-b bg-gray-50 font-bold"><td colspan="3" class="p-2">Cuaca</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Cerah</td><td class="p-2 text-center">2</td><td class="p-2 text-center">3</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Berawan</td><td class="p-2 text-center">4</td><td class="p-2 text-center">0</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Hujan</td><td class="p-2 text-center">3</td><td class="p-2 text-center">2</td></tr>
+                                                <tr class="border-b bg-gray-50 font-bold"><td colspan="3" class="p-2">Suhu</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Panas</td><td class="p-2 text-center">2</td><td class="p-2 text-center">2</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Sejuk</td><td class="p-2 text-center">4</td><td class="p-2 text-center">2</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Dingin</td><td class="p-2 text-center">3</td><td class="p-2 text-center">1</td></tr>
+                                                <tr class="border-b bg-gray-50 font-bold"><td colspan="3" class="p-2">Kelembaban</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Tinggi</td><td class="p-2 text-center">3</td><td class="p-2 text-center">4</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Normal</td><td class="p-2 text-center">6</td><td class="p-2 text-center">1</td></tr>
+                                                 <tr class="border-b bg-gray-50 font-bold"><td colspan="3" class="p-2">Berangin</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Ya</td><td class="p-2 text-center">3</td><td class="p-2 text-center">3</td></tr>
+                                                <tr><td class="p-2 pl-4">Tidak</td><td class="p-2 text-center">6</td><td class="p-2 text-center">2</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Tabel Likelihood -->
+                                <div>
+                                    <h4 class="font-medium text-sm mb-2">B. Tabel Probabilitas Likelihood</h4>
+                                     <div class="overflow-auto max-h-60 text-sm border rounded-lg">
+                                        <table class="w-full text-left font-mono">
+                                            <thead class="bg-gray-100 sticky top-0 font-sans">
+                                                <tr>
+                                                    <th class="p-2">Atribut</th>
+                                                    <th class="p-2 text-center">P( | Ya)</th>
+                                                    <th class="p-2 text-center">P( | Tidak)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="border-b bg-gray-50 font-bold font-sans"><td colspan="3" class="p-2">Cuaca</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Cerah</td><td class="p-2 text-center">0.222</td><td class="p-2 text-center">0.600</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Berawan</td><td class="p-2 text-center">0.444</td><td class="p-2 text-center">0.000</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Hujan</td><td class="p-2 text-center">0.333</td><td class="p-2 text-center">0.400</td></tr>
+                                                <tr class="border-b bg-gray-50 font-bold font-sans"><td colspan="3" class="p-2">Suhu</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Panas</td><td class="p-2 text-center">0.222</td><td class="p-2 text-center">0.400</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Sejuk</td><td class="p-2 text-center">0.444</td><td class="p-2 text-center">0.400</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Dingin</td><td class="p-2 text-center">0.333</td><td class="p-2 text-center">0.200</td></tr>
+                                                <tr class="border-b bg-gray-50 font-bold font-sans"><td colspan="3" class="p-2">Kelembaban</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Tinggi</td><td class="p-2 text-center">0.333</td><td class="p-2 text-center">0.800</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Normal</td><td class="p-2 text-center">0.667</td><td class="p-2 text-center">0.200</td></tr>
+                                                <tr class="border-b bg-gray-50 font-bold font-sans"><td colspan="3" class="p-2">Berangin</td></tr>
+                                                <tr class="border-b"><td class="p-2 pl-4">Ya</td><td class="p-2 text-center">0.333</td><td class="p-2 text-center">0.600</td></tr>
+                                                <tr><td class="p-2 pl-4">Tidak</td><td class="p-2 text-center">0.667</td><td class="p-2 text-center">0.400</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Probabilitas Prior -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700">2. Probabilitas Prior (Distribusi Awal)</h3>
+                            <p class="text-sm text-gray-500 mt-1">Probabilitas dasar dari setiap kelas di data latih.</p>
+                            <div class="flex space-x-4 mt-2 font-mono text-sm">
+                                <p>P(Ya) = 9/14 = <span class="font-bold text-green-600">0.643</span></p>
+                                <p>P(Tidak) = 5/14 = <span class="font-bold text-red-600">0.357</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Skor Posterior -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700">3. Skor Posterior (Sebelum Normalisasi)</h3>
+                            <p class="text-sm text-gray-500 mt-1">Hasil perkalian Probabilitas Prior dengan Likelihood dari setiap fitur data baru. Ini adalah angka yang sama dengan hasil perhitungan Excel Anda.</p>
+                            <div class="mt-2 p-3 bg-gray-50 rounded-lg font-mono text-xs overflow-x-auto">
+                                <p class="whitespace-nowrap"><span class="font-bold">Skor(Ya)</span> = P(Ya) × P(Cerah|Ya) × P(Sejuk|Ya) × P(Tinggi|Ya) × P(Berangin=Ya|Ya)</p>
+                                <p class="whitespace-nowrap ml-4">= 0.643 × 0.222 × 0.444 × 0.333 × 0.333 = <span class="text-lg font-bold text-green-700">0.00705</span></p>
+                                <hr class="my-2">
+                                <p class="whitespace-nowrap"><span class="font-bold">Skor(Tidak)</span> = P(Tidak) × P(Cerah|Tidak) × P(Sejuk|Tidak) × P(Tinggi|Tidak) × P(Berangin=Ya|Tidak)</p>
+                                <p class="whitespace-nowrap ml-4">= 0.357 × 0.600 × 0.400 × 0.800 × 0.600 = <span class="text-lg font-bold text-red-700">0.04114</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Normalisasi -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700">4. Normalisasi menjadi Probabilitas Akhir</h3>
+                            <p class="text-sm text-gray-500 mt-1">Mengubah skor mentah menjadi probabilitas (total 100%) untuk perbandingan yang adil.</p>
+                             <div class="mt-2 p-3 bg-gray-50 rounded-lg font-mono text-xs overflow-x-auto">
+                                <p class="whitespace-nowrap"><span class="font-bold">P(Ya | Data Baru)</span> = Skor(Ya) / (Skor(Ya) + Skor(Tidak))</p>
+                                <p class="whitespace-nowrap ml-4">= 0.00705 / (0.00705 + 0.04114) = <span class="text-lg font-bold text-green-700">0.146 (14.6%)</span></p>
+                                <hr class="my-2">
+                                <p class="whitespace-nowrap"><span class="font-bold">P(Tidak | Data Baru)</span> = Skor(Tidak) / (Skor(Ya) + Skor(Tidak))</p>
+                                <p class="whitespace-nowrap ml-4">= 0.04114 / (0.00705 + 0.04114) = <span class="text-lg font-bold text-red-700">0.854 (85.4%)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insight & Kesimpulan -->
+                <div class="card">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">Insight & Kesimpulan Analisis</h2>
+                    <div class="space-y-5">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-blue-100 rounded-full">
+                                <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z" /></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Performa Model Cukup Baik</h3>
+                                <p class="text-sm text-gray-600 mt-1">Dengan akurasi <strong>85.7%</strong>, model ini mampu menangkap pola umum dari data. Kesalahan prediksi yang terjadi pada 2 dari 14 data latih adalah wajar dan menunjukkan model tidak "menghafal" (overfitting), sehingga lebih bisa diandalkan untuk data baru.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-yellow-100 rounded-full">
+                                <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H5v-2H3v-2H1v-4a6 6 0 017.743-5.743z" /></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Faktor Penentu Prediksi "TIDAK"</h3>
+                                <p class="text-sm text-gray-600 mt-1">Prediksi 'Tidak' untuk data baru sangat dipengaruhi oleh probabilitas bersyarat yang kuat, yaitu <strong class="text-red-600">P(Kelembaban=Tinggi|Tidak) = 0.800</strong> dan <strong class="text-red-600">P(Cuaca=Cerah|Tidak) = 0.600</strong>. Bukti ini secara kolektif lebih berat daripada bukti yang mendukung 'Ya'.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-green-100 rounded-full">
+                                <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Kesimpulan Akhir</h3>
+                                <p class="text-sm text-gray-600 mt-1">Berdasarkan analisis Naive Bayes, dengan kondisi cuaca cerah, sejuk, kelembaban tinggi, dan berangin, keputusan yang paling mungkin secara statistik adalah <strong class="text-red-700 font-bold">TIDAK BERMAIN GOLF</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-12 text-sm text-gray-500">
+            <p>Dashboard ini dibuat untuk memvisualisasikan hasil analisis klasifikasi menggunakan model Naive Bayes.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
+
