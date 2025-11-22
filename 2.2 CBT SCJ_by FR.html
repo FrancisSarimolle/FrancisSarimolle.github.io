@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT C++ Advanced Logic | Ujian Online</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --primary: #3b82f6; 
+            --success: #10b981; 
+            --warning: #f59e0b; 
+            --danger: #ef4444; 
+            --dark: #111827;
+            --light: #f3f4f6;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); color: var(--dark); margin: 0; height: 100vh; display: flex; flex-direction: column; }
+
+        /* LOGIN SCREEN */
+        #login-screen {
+            position: fixed; inset: 0; background: white; z-index: 1000; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-card {
+            width: 400px; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e5e7eb;
+        }
+        .login-input {
+            width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; outline: none; transition: 0.3s;
+        }
+        .login-input:focus { border-color: var(--primary); }
+        
+        /* EXAM LAYOUT */
+        header {
+            background: white; padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .timer-box { font-weight: bold; font-size: 1.2rem; color: var(--danger); background: #fee2e2; padding: 5px 15px; border-radius: 20px; }
+        
+        .main-content { display: flex; flex: 1; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 320px; background: white; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid #e5e7eb; font-weight: bold; }
+        .nav-grid { padding: 15px; overflow-y: auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex: 1; }
+        .nav-item {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-size: 0.9rem;
+        }
+        .nav-item.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary); }
+        .nav-item.answered { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-item.flagged { background: var(--warning); color: white; border-color: var(--warning); }
+        .sidebar-footer { padding: 15px; border-top: 1px solid #e5e7eb; }
+
+        /* Question Area */
+        .question-area { flex: 1; padding: 30px; overflow-y: auto; max-width: 1000px; margin: 0 auto; }
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+        
+        pre { border-radius: 8px; border: 1px solid #374151; margin: 15px 0 !important; max-height: 400px; }
+
+        .options-list { list-style: none; padding: 0; margin-top: 20px; }
+        .option-item {
+            display: flex; padding: 15px; margin-bottom: 10px; border: 2px solid #e5e7eb; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s; background: white; align-items: center;
+        }
+        .option-item:hover { border-color: var(--primary); background: #eff6ff; }
+        .option-item.selected { border-color: var(--primary); background: #dbeafe; }
+        .option-label {
+            width: 30px; height: 30px; background: #e5e7eb; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-weight: bold; margin-right: 15px;
+        }
+        .option-item.selected .option-label { background: var(--primary); color: white; }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-secondary { background: #9ca3af; color: white; }
+        .btn-block { width: 100%; }
+
+        .q-controls { margin-top: 30px; display: flex; justify-content: space-between; padding-bottom: 50px; }
+
+        #result-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+            z-index: 2000; align-items: center; justify-content: center;
+        }
+        .result-card { background: white; width: 500px; padding: 40px; border-radius: 16px; text-align: center; }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%; border: 8px solid var(--primary);
+            display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold;
+            margin: 20px auto; color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>Ujian C++ Advanced</h2>
+            <p style="color:#666; margin-bottom: 20px;">Materi: Perulangan & Percabangan Kompleks</p>
+            
+            <input type="text" id="username" class="login-input" placeholder="Masukkan Nama Lengkap...">
+            <input type="text" id="userclass" class="login-input" placeholder="Masukkan Kelas (Cth: XII RPL)...">
+            
+            <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="startExam()">MULAI UJIAN</button>
+        </div>
+    </div>
+
+    <div id="exam-screen" style="display:none; height: 100%;">
+        <header>
+            <div style="font-weight:bold;">
+                CBT System v3.0 
+                <span style="font-weight:normal; color:#666;">
+                    | Peserta: <span id="display-name">User</span> 
+                    (<span id="display-class">Kelas</span>)
+                </span>
+            </div>
+            <div class="timer-box" id="timer-display">90:00</div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-header">Navigasi Soal (50)</div>
+                <div class="nav-grid" id="nav-container"></div>
+                <div class="sidebar-footer">
+                    <div style="display:flex; gap:5px; font-size:0.8rem; margin-bottom:10px;">
+                        <span style="width:15px; height:15px; background:var(--primary);"></span> Dijawab
+                        <span style="width:15px; height:15px; background:var(--warning);"></span> Ragu
+                        <span style="width:15px; height:15px; border:1px solid #ccc;"></span> Kosong
+                    </div>
+                    <button class="btn btn-success btn-block" onclick="finishExam()">Selesai Ujian</button>
+                </div>
+            </div>
+
+            <div class="question-area">
+                <div class="q-header">
+                    <h2 style="margin:0;" id="q-number">Soal 1</h2>
+                    <button class="btn btn-warning" id="btn-flag" onclick="toggleFlag()">Ragu-ragu</button>
+                </div>
+                
+                <p style="font-size: 1.1rem;">Perhatikan kode C++ berikut. Tentukan output yang tepat!</p>
+                
+                <pre><code id="q-code" class="language-cpp"></code></pre>
+
+                <ul class="options-list" id="options-container"></ul>
+
+                <div class="q-controls">
+                    <button class="btn btn-secondary" onclick="changeQuestion(-1)">Sebelumnya</button>
+                    <button class="btn btn-primary" onclick="changeQuestion(1)">Selanjutnya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-modal">
+        <div class="result-card">
+            <h2>Hasil Ujian</h2>
+            <div class="score-circle" id="final-score">0</div>
+            <div style="display:flex; justify-content:space-around; margin-bottom:20px;">
+                <div>Benar: <b id="res-correct" style="color:var(--success)">0</b></div>
+                <div>Salah: <b id="res-wrong" style="color:var(--danger)">0</b></div>
+            </div>
+            <button class="btn btn-secondary" onclick="location.reload()">Keluar / Reset</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <script>
+        // ==========================================
+        // 1. DATABASE SOAL (Clean & Fixed)
+        // ==========================================
+        const cleanQuestions = [
+            {
+                code: `#include <iostream>
+using namespace std;
+int main() {
+    int sum = 0;
+    for (int i = 1; i <= 3; i++) {
+        for (int j = 1; j <= 3; j++) {
+            if (i == 2 && j == 2) break;
+            sum += j;
+        }
+    }
+    cout << sum;
+}`, options: ["10", "11", "13", "14", "15"], ans: 2 }, // Jawab 13
+            {
+                code: `#include <iostream>
+using namespace std;
+int main() {
+    int i = 0, count = 0;
+    while (i < 10) {
+        i++;
+        if (i % 3 == 0) { i += 2; continue; }
+        count++;
+    }
+    cout << count;
+}`, options: ["2", "3", "4", "5", "6"], ans: 0 }, // Jawab 2
+            {
+                code: `#include <iostream>
+using namespace std;
+int main() {
+    int val = 0;
+    for (int k = 0; k < 3; k++) {
+        switch(k) {
+            case 0: val += 1; 
+            case 1: val += 2; break; 
+            default: val -= 1;
+        }
+    }
+    cout << val;
+}`, options: ["5", "4", "6", "3", "2"], ans: 1 }, // Jawab 4
+            {
+                code: `#include <iostream>
+using namespace std;
+int main() {
+    int x = 5;
+    do {
+        if (x == 3) x--;
+        cout << x << " ";
+        x--;
+    } while (x > 2);
+}`, options: ["5 4 3", "5 4 2", "5 4 3 2", "5 4", "Infinite Loop"], ans: 1 }, // Jawab 5 4 2
+            {
+                code: `#include <iostream>
+using namespace std;
+int main() {
+    int a = 1, b = 1;
+    while (a <= 3) {
+        if (a > 1 || b++ > 1) { a++; } 
+        else { a += 2; }
+    }
+    cout << b;
+}`, options: ["1", "2", "3", "4", "5"], ans: 1 } // Jawab 2
+        ];
+
+        // Generator Soal 6-50
+        function generateQuestions() {
+            let allQuestions = JSON.parse(JSON.stringify(cleanQuestions)); 
+            
+            for(let i = 5; i < 50; i++) {
+                const seed = i; 
+                let q = {};
+
+                if (seed % 4 === 0) {
+                    const limit = (seed % 3) + 3; 
+                    q = {
+                        code: `int res = 0;\nfor(int i=0; i<${limit}; i++) {\n  for(int j=0; j<=i; j++) {\n    if((i+j)%2 != 0) res++;\n  }\n}\ncout << res;`,
+                        options: ["3", "4", "5", "6", "7"],
+                        ans: 0 
+                    };
+                    q.code = `int a = ${seed}, b = 0;\nwhile(a > 0) {\n  if(a % 2 == 0) b += a;\n  else b -= 1;\n  a -= 2;\n}\ncout << b;`;
+                    q.options = ["0", "10", "38", "Error", "100"]; 
+                    q.ans = 2; 
+                }
+                else if (seed % 4 === 1) {
+                    let val = seed + 10;
+                    q = {
+                        code: `int x = ${val};\nint y = (x > 20) ? ((x < 50) ? 10 : 20) : 30;\nif(y == 10 && x++ > ${val}) y++;\ncout << y;`,
+                        options: ["10", "11", "20", "30", "Error"],
+                        ans: 0 
+                    };
+                    if(val > 20 && val < 50) q.ans = 0; else if(val >= 50) q.ans = 2; else q.ans = 3;
+                }
+                else if (seed % 4 === 2) {
+                    q = {
+                        code: `int k = ${seed % 5};\nfor(;;) {\n  if(k == 5) break;\n  k++;\n  if(k > 8) { k = 0; break; }\n}\ncout << k;`,
+                        options: ["5", "0", "8", "9", "Infinite"],
+                        ans: 0 
+                    };
+                    if((seed % 5) > 5) q.ans = 1; 
+                }
+                else {
+                    q = {
+                        code: `int x = 10;\nif (x == 10) {\n  int x = 5; // variable baru\n  x++;\n}\ncout << x;`,
+                        options: ["5", "6", "10", "11", "Error"],
+                        ans: 2 
+                    };
+                }
+                allQuestions.push(q);
+            }
+            return allQuestions;
+        }
+
+        // ==========================================
+        // 2. ENGINE LOGIC (Fixed)
+        // ==========================================
+        // GANTI URL INI DENGAN URL APPS SCRIPT ANDA
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPMO5cpIXgLGTO3tlCsv3XStYHQOU8VjPlhyF3hqrQ209s6PPk_hlYFHJLQnQD_JBe/exec"; 
+
+        let questions = [];
+        let currentIdx = 0;
+        let userAnswers = {}; 
+        let flags = {}; 
+        let timerInterval;
+        let timeRemaining = 90 * 60; 
+
+        function startExam() {
+            // 1. Ambil Input
+            const name = document.getElementById('username').value;
+            const kelas = document.getElementById('userclass').value;
+
+            // 2. Validasi
+            if(!name || !kelas) { 
+                alert("Mohon lengkapi Nama dan Kelas sebelum memulai!"); 
+                return; 
+            }
+
+            // 3. Setup Tampilan
+            document.getElementById('display-name').innerText = name;
+            document.getElementById('display-class').innerText = kelas; 
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('exam-screen').style.display = 'flex';
+            
+            // 4. Generate Soal & Jalankan Ujian
+            try {
+                questions = generateQuestions();
+                
+                // Cek Sesi Lama
+                if(localStorage.getItem('cbt_state')) {
+                    if(confirm("Ditemukan sesi ujian sebelumnya. Lanjutkan?")) {
+                        const state = JSON.parse(localStorage.getItem('cbt_state'));
+                        userAnswers = state.userAnswers || {};
+                        flags = state.flags || {};
+                        timeRemaining = state.timeRemaining || (90*60);
+                    } else {
+                        localStorage.removeItem('cbt_state');
+                    }
+                }
+
+                renderNav();
+                loadQuestion(0);
+                startTimer();
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat memuat soal. Silakan refresh browser.");
+            }
+        }
+
+        function loadQuestion(idx) {
+            currentIdx = idx;
+            const q = questions[idx];
+            
+            document.getElementById('q-number').innerText = `Soal No. ${idx + 1}`;
+            
+            // Inject Code
+            const codeBlock = document.getElementById('q-code');
+            codeBlock.textContent = q.code;
+            
+            // Cek jika Prism sudah load
+            if (window.Prism) {
+                Prism.highlightElement(codeBlock);
+            }
+
+            // Render Options
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const li = document.createElement('li');
+                li.className = `option-item ${userAnswers[idx] === i ? 'selected' : ''}`;
+                li.innerHTML = `
+                    <div class="option-label">${String.fromCharCode(65+i)}</div>
+                    <div>${opt}</div>
+                `;
+                li.onclick = () => selectAnswer(idx, i);
+                optsContainer.appendChild(li);
+            });
+
+            // Update Flag Button
+            const btnFlag = document.getElementById('btn-flag');
+            btnFlag.innerText = flags[idx] ? "Hilangkan Ragu" : "Ragu-ragu";
+            
+            renderNav();
+        }
+
+        function selectAnswer(qIdx, aIdx) {
+            userAnswers[qIdx] = aIdx;
+            saveState();
+            loadQuestion(qIdx);
+        }
+
+        function toggleFlag() {
+            flags[currentIdx] = !flags[currentIdx];
+            saveState();
+            loadQuestion(currentIdx);
+        }
+
+        function changeQuestion(dir) {
+            const next = currentIdx + dir;
+            if(next >= 0 && next < questions.length) {
+                loadQuestion(next);
+            }
+        }
+
+        function renderNav() {
+            const container = document.getElementById('nav-container');
+            container.innerHTML = '';
+            questions.forEach((_, idx) => {
+                const div = document.createElement('div');
+                div.className = 'nav-item';
+                div.innerText = idx + 1;
+                
+                if(currentIdx === idx) div.classList.add('active');
+                if(userAnswers[idx] !== undefined) div.classList.add('answered');
+                if(flags[idx]) div.classList.add('flagged');
+                
+                div.onclick = () => loadQuestion(idx);
+                container.appendChild(div);
+            });
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                saveState();
+                
+                const m = Math.floor(timeRemaining / 60).toString().padStart(2,'0');
+                const s = (timeRemaining % 60).toString().padStart(2,'0');
+                document.getElementById('timer-display').innerText = `${m}:${s}`;
+
+                if(timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishExam(true);
+                }
+            }, 1000);
+        }
+
+        function saveState() {
+            const state = {
+                userAnswers,
+                flags,
+                timeRemaining
+            };
+            localStorage.setItem('cbt_state', JSON.stringify(state));
+        }
+
+        function finishExam(force = false) {
+            if(!force && !confirm("Yakin ingin menyelesaikan ujian? Anda tidak bisa mengubah jawaban setelah ini.")) return;
+
+            clearInterval(timerInterval);
+            localStorage.removeItem('cbt_state');
+
+            let correct = 0;
+            questions.forEach((q, idx) => {
+                if(userAnswers[idx] === q.ans) correct++;
+            });
+
+            const score = Math.round((correct / questions.length) * 100);
+            const userName = document.getElementById('display-name').innerText;
+            const userClass = document.getElementById('display-class').innerText; 
+
+            // Kirim Data
+            sendDataToSheet(userName, userClass, score, correct, userAnswers);
+        }
+
+        function sendDataToSheet(nama, kelas, skor, benar, jawaban) {
+            const btnFinish = document.querySelector('.sidebar-footer button');
+            btnFinish.innerText = "Menyimpan data...";
+            btnFinish.disabled = true;
+
+            const dataKirim = {
+                nama: nama,
+                kelas: kelas,
+                nilai: skor,
+                benar: benar,
+                detail: JSON.stringify(jawaban)
+            };
+
+            // Jika URL Google Script belum diisi, langsung tampilkan hasil lokal
+            if(SCRIPT_URL === "MASUKKAN_URL_GOOGLE_SCRIPT_DISINI") {
+                showResult(skor, benar);
+                return;
+            }
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataKirim)
+            }).then(response => {
+                showResult(skor, benar);
+                alert("Data berhasil disimpan ke server!");
+            }).catch(error => {
+                console.error('Error:', error);
+                alert("Gagal koneksi server. Hasil tetap ditampilkan.");
+                showResult(skor, benar);
+            });
+        }
+
+        function showResult(score, correct) {
+            document.getElementById('result-modal').style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('res-correct').innerText = correct;
+            document.getElementById('res-wrong').innerText = questions.length - correct;
+        }
+
+    </script>
+</body>
+</html>
