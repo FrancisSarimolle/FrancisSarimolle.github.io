@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTS: Keamanan Aplikasi (CBT)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        
+        .container { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 3fr 1fr; gap: 20px; }
+        
+        /* Area Soal */
+        .quiz-area { background: var(--card); padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .code-block-container { margin: 15px 0; border-radius: 6px; overflow: hidden; }
+        
+        /* Pilihan Ganda */
+        .options { display: grid; gap: 10px; margin-top: 20px; }
+        .option-btn {
+            padding: 12px; text-align: left; border: 2px solid #e5e7eb; border-radius: 8px;
+            background: white; cursor: pointer; transition: all 0.2s; font-weight: 500;
+            font-size: 1em; color: var(--text);
+        }
+        .option-btn:hover { border-color: var(--primary); background: #eff6ff; }
+        .option-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Input Esai */
+        .essay-input {
+            width: 100%; height: 200px; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px;
+            font-family: 'Segoe UI', sans-serif; font-size: 1em; line-height: 1.5; resize: vertical;
+            box-sizing: border-box; margin-top: 15px;
+        }
+        .essay-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        /* Sidebar Navigasi */
+        .sidebar { background: var(--card); padding: 20px; border-radius: 10px; height: fit-content; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .timer { font-size: 1.5em; font-weight: bold; text-align: center; color: #dc2626; margin-bottom: 20px; }
+        .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .nav-btn {
+            padding: 8px; border: 1px solid #e5e7eb; background: white;
+            border-radius: 4px; cursor: pointer; font-size: 0.9em;
+        }
+        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-btn.answered { background: #10b981; color: white; border-color: #10b981; }
+        .nav-btn.active.answered { background: #059669; border-color: #059669; }
+
+        .controls { margin-top: 25px; display: flex; justify-content: space-between; }
+        .btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; }
+        .btn:hover { opacity: 0.9; }
+        .btn-secondary { background: #6b7280; }
+        
+        /* Hasil */
+        #result-screen { display: none; text-align: center; }
+        .score-display { font-size: 3em; font-weight: bold; color: var(--primary); margin: 20px 0; }
+        .essay-review-box {
+            text-align: left; background: #fff3cd; border: 1px solid #ffeeba; 
+            padding: 15px; border-radius: 8px; margin-top: 20px; color: #856404;
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="quiz-container">
+    <div class="quiz-area">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+            <h2 id="q-number" style="margin:0;">Soal 1</h2>
+            <span style="font-size:0.9em; color:#666; background:#eee; padding: 4px 8px; border-radius:4px;" id="q-topic">Topic: General</span>
+        </div>
+        
+        <p id="q-text" style="font-size: 1.1em; line-height: 1.6; margin-bottom: 15px;">Pertanyaan...</p>
+        
+        <div id="code-container" class="code-block-container hidden">
+            <pre class="line-numbers"><code id="q-code" class="language-markup"></code></pre>
+        </div>
+        
+        <div id="answer-container"></div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="prevQuestion()">Sebelumnya</button>
+            <button class="btn" onclick="nextQuestion()" id="btn-next">Selanjutnya</button>
+            <button class="btn" onclick="finishQuiz()" id="btn-finish" style="display:none; background:#dc2626;">Selesai Ujian</button>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="timer" id="timer">90:00</div>
+        <div style="margin-bottom:10px; font-size:0.9em; font-weight:bold;">Navigasi Soal:</div>
+        <div class="nav-grid" id="nav-grid"></div>
+        
+        <div style="margin-top: 20px; font-size: 0.8em; color: #666; border-top: 1px solid #eee; padding-top: 10px;">
+            <p><strong>Keterangan:</strong></p>
+            <div style="display:flex; align-items:center; margin-bottom:5px;"><div style="width:12px; height:12px; background:#2563eb; margin-right:8px; border-radius:2px;"></div> Posisi Sekarang</div>
+            <div style="display:flex; align-items:center;"><div style="width:12px; height:12px; background:#10b981; margin-right:8px; border-radius:2px;"></div> Sudah Dijawab</div>
+            <div style="display:flex; align-items:center; margin-top:5px;"><div style="width:12px; height:12px; border-bottom: 3px solid #f59e0b; margin-right:8px;"></div> Soal Esai</div>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="result-screen">
+    <div class="quiz-area" style="text-align: center; width: 100%;">
+        <h1>Ujian Selesai</h1>
+        
+        <div id="score-section">
+            <p>Nilai Pilihan Ganda:</p>
+            <div class="score-display" id="final-score">0</div>
+            <p id="correct-count" style="font-size: 1.2em;"></p>
+        </div>
+
+        <div class="essay-review-box" id="essay-result-msg">
+            <strong>Status Esai:</strong><br>
+            Jawaban soal esai telah tersimpan. Nilai akhir akan diperbarui setelah diperiksa oleh Dosen.
+        </div>
+        
+        <div style="margin-top:30px; text-align: left; background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
+            <h3 style="margin-top:0;">Detail Jawaban Esai Anda:</h3>
+            <p id="essay-answer-display" style="white-space: pre-wrap; font-family: monospace; color: #444; background: #fff; padding: 10px; border: 1px solid #ddd;"></p>
+        </div>
+
+        <button class="btn" onclick="location.reload()" style="margin-top:30px;">Ulangi Ujian</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+<script>
+    // ==========================================
+    // DATABASE SOAL (FIXED SCRIPT TAGS)
+    // ==========================================
+    // PENTING: Semua tag penutup script di dalam string data harus ditulis <\/script>
+    
+    const questions = [
+        // --- BAGIAN I: PILIHAN GANDA ---
+        { type: "mcq", topic: "CIA Triad", text: "Dalam prinsip keamanan informasi (CIA Triad), manakah pernyataan yang paling tepat menggambarkan konsep <b>Confidentiality</b>?", options: ["Memastikan sistem selalu aksesibel.", "Menjaga integritas data.", "Menjaga data dari akses tak sah.", "Mencegah penyangkalan pesan.", "Validasi input."], answer: 2 },
+        { type: "mcq", topic: "OWASP Category", text: "Menurut OWASP Top 10: 2021, SQL Injection dan XSS masuk kategori apa?", code: "A03:2021 - ???", lang: "none", options: ["Broken Access Control", "Injection", "Auth Failures", "Cryptographic Failures", "Security Misconfiguration"], answer: 1 },
+        { type: "mcq", topic: "Attack ID", text: "Input berikut pada kolom login merupakan ciri serangan apa?", code: "' OR 1=1 --", lang: "sql", options: ["Stored XSS", "SQL Injection", "Command Injection", "Brute Force", "IDOR"], answer: 1 },
+        { type: "mcq", topic: "SQLi Defense", text: "Solusi terbaik mencegah SQL Injection adalah:", code: "SELECT * FROM user WHERE id = ?", lang: "sql", options: ["MD5 Encryption", "Client-side JS", "Custom Error Msg", "Parameterized Queries", "HTTPS"], answer: 3 },
+        { type: "mcq", topic: "XSS Type", text: "Skrip berbahaya disimpan di database dan dieksekusi saat halaman dimuat. Jenis XSS?", code: "<script>...<\/script>", lang: "markup", options: ["Reflected", "DOM-based", "Stored", "Self-XSS", "Blind"], answer: 2 },
+        { type: "mcq", topic: "XSS Mitigation", text: "Mengubah karakter khusus menjadi entitas aman (e.g. &lt;) disebut:", options: ["Input Validation", "Output Encoding", "Hashing", "Salting", "Session Fixation"], answer: 1 },
+        { type: "mcq", topic: "IDOR", text: "Mengubah parameter ID di URL untuk akses data orang lain disebut:", code: "GET /akun?id=101", lang: "http", options: ["Missing Function Level Access", "IDOR", "CSRF", "Privilege Escalation", "Session Hijacking"], answer: 1 },
+        { type: "mcq", topic: "Auth vs Authz", text: "Perbedaan Autentikasi dan Otorisasi?", options: ["Autentikasi: Apa yg boleh dilakukan.", "Autentikasi pakai enkripsi.", "Autentikasi: Siapa Anda; Otorisasi: Hak Akses.", "Autentikasi setelah Otorisasi.", "Sama saja."], answer: 2 },
+        { type: "mcq", topic: "Crypto", text: "Kenapa MD5 tidak aman untuk password?", options: ["Terlalu lambat.", "Enkripsi 2 arah.", "Rentan collision/rainbow table.", "Hanya angka.", "Perlu private key."], answer: 2 },
+        { type: "mcq", topic: "In-Transit", text: "Solusi wajib melindungi data saat transmisi (in-transit):", options: ["Hashing SHA-256", "TDE", "HTTPS (SSL/TLS)", "Hide URL", "POST method"], answer: 2 },
+        
+        // --- BAGIAN II: STUDI KASUS MC ---
+        { type: "mcq", topic: "Studi Kasus: ID", text: "<b>Skenario:</b> User bisa ubah URL ID=101 jadi ID=102 untuk lihat data orang lain. Ini kerentanan apa?", options: ["SQL Injection", "IDOR", "CSRF", "XSS", "Phishing"], answer: 1 },
+        { type: "mcq", topic: "Studi Kasus: Impact", text: "Apa dampak terburuk dari Stored XSS di forum diskusi?", options: ["Server Down", "Database Deleted", "Account Takeover (Session Theft)", "Password Reset", "Admin Reveal"], answer: 2 },
+        { type: "mcq", topic: "Studi Kasus: Fix", text: "Mitigasi untuk celah IDOR pada URL parameter:", options: ["HTTPS", "Output Encoding", "MD5 NIM", "Server-side Access Control Check", "Hide URL"], answer: 3 },
+
+        // --- BAGIAN III: SOAL ESSAY BARU ---
+        { 
+            type: "essay", 
+            topic: "Secure SDLC (Esai)", 
+            text: "<b>Studi Kasus Esai:</b><br>Sebuah startup Fintech meluncurkan aplikasi pinjaman online dengan terburu-buru. Demi kecepatan rilis, mereka <b>menghilangkan tahapan Code Review</b> dan <b>Penetration Testing</b>, dan hanya mengandalkan Firewall di server produksi.<br><br><b>Pertanyaan:</b><br>1. Jelaskan risiko keamanan fatal yang mungkin terjadi akibat keputusan ini!<br>2. Sebutkan minimal 2 aktivitas keamanan yang WAJIB dikembalikan ke dalam proses pengembangan (SDLC) mereka!",
+            code: "", 
+            lang: "none",
+            answer: null 
+        }
+    ];
+
+    // ==========================================
+    // ENGINE LOGIC
+    // ==========================================
+    let currentIdx = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timeLeft = 90 * 60; 
+
+    const elements = {
+        timer: document.getElementById('timer'),
+        qNumber: document.getElementById('q-number'),
+        qTopic: document.getElementById('q-topic'),
+        qText: document.getElementById('q-text'),
+        qCode: document.getElementById('q-code'),
+        codeContainer: document.getElementById('code-container'),
+        answerContainer: document.getElementById('answer-container'),
+        navGrid: document.getElementById('nav-grid')
+    };
+    
+    function init() {
+        renderNav();
+        loadQuestion(0);
+        startTimer();
+    }
+
+    function renderNav() {
+        elements.navGrid.innerHTML = '';
+        questions.forEach((q, idx) => {
+            const btn = document.createElement('button');
+            let className = 'nav-btn';
+            if (idx === currentIdx) className += ' active';
+            
+            // Cek status jawaban
+            const ans = userAnswers[idx];
+            if (ans !== null && ans !== "") className += ' answered';
+            
+            btn.className = className;
+            btn.innerText = idx + 1;
+            // Marker untuk soal Esai (garis bawah oranye)
+            if (q.type === 'essay') btn.style.borderBottom = "3px solid #f59e0b";
+
+            btn.onclick = () => loadQuestion(idx);
+            elements.navGrid.appendChild(btn);
+        });
+    }
+
+    function loadQuestion(idx) {
+        currentIdx = idx;
+        const q = questions[idx];
+        
+        elements.qNumber.innerText = `Soal ${idx + 1}`;
+        elements.qTopic.innerText = `Topik: ${q.topic}`;
+        elements.qText.innerHTML = q.text;
+        
+        // Handler Tampilan Kode
+        if(q.code && q.code.trim() !== "") {
+            elements.codeContainer.classList.remove('hidden');
+            elements.qCode.textContent = q.code;
+            elements.qCode.className = `language-${q.lang}`;
+            if (typeof Prism !== 'undefined') Prism.highlightElement(elements.qCode);
+        } else {
+            elements.codeContainer.classList.add('hidden');
+        }
+
+        // Render Input Area
+        elements.answerContainer.innerHTML = '';
+        
+        if (q.type === 'mcq') {
+            elements.answerContainer.className = 'options'; // Grid style
+            q.options.forEach((opt, optIdx) => {
+                const btn = document.createElement('button');
+                const isSelected = userAnswers[idx] === optIdx;
+                btn.className = `option-btn ${isSelected ? 'selected' : ''}`;
+                const letter = String.fromCharCode(65 + optIdx);
+                btn.innerHTML = `<b style="margin-right:10px;">${letter}.</b> ${opt}`;
+                btn.onclick = () => selectMcqAnswer(optIdx);
+                elements.answerContainer.appendChild(btn);
+            });
+        } else if (q.type === 'essay') {
+            elements.answerContainer.className = ''; // Reset grid
+            const savedAns = userAnswers[idx] || "";
+            const textarea = document.createElement('textarea');
+            textarea.className = 'essay-input';
+            textarea.placeholder = "Ketik jawaban analisis Anda di sini...";
+            textarea.value = savedAns;
+            textarea.oninput = (e) => saveEssayAnswer(e.target.value);
+            elements.answerContainer.appendChild(textarea);
+        }
+
+        // Update Tombol Navigasi
+        document.getElementById('btn-next').style.display = (idx === questions.length - 1) ? 'none' : 'inline-block';
+        document.getElementById('btn-finish').style.display = (idx === questions.length - 1) ? 'inline-block' : 'none';
+        
+        renderNav();
+    }
+
+    function selectMcqAnswer(optIdx) {
+        userAnswers[currentIdx] = optIdx;
+        // UI Update tanpa reload penuh
+        const opts = document.querySelectorAll('.option-btn');
+        opts.forEach(b => b.classList.remove('selected'));
+        opts[optIdx].classList.add('selected');
+        renderNav(); 
+    }
+
+    function saveEssayAnswer(text) {
+        userAnswers[currentIdx] = text;
+        // Kita tidak panggil renderNav setiap ketikan agar performa lancar
+    }
+
+    function nextQuestion() {
+        renderNav(); // Pastikan status terupdate saat pindah
+        if (currentIdx < questions.length - 1) loadQuestion(currentIdx + 1);
+    }
+
+    function prevQuestion() {
+        renderNav();
+        if (currentIdx > 0) loadQuestion(currentIdx - 1);
+    }
+
+    function startTimer() {
+        const interval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft < 0) {
+                clearInterval(interval);
+                finishQuiz(true);
+                return;
+            }
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            elements.timer.innerText = `${m}:${s}`;
+        }, 1000);
+    }
+
+    function finishQuiz(force = false) {
+        renderNav(); // Sync state
+        
+        if(!force) {
+            // Hitung yang belum dijawab
+            let emptyCount = 0;
+            userAnswers.forEach((ans, i) => {
+                if (ans === null || ans === "") emptyCount++;
+            });
+            
+            let msg = "Akhiri ujian sekarang?";
+            if (emptyCount > 0) msg += `\n\nMasih ada ${emptyCount} soal belum dijawab.`;
+            if(!confirm(msg)) return;
+        }
+
+        // Hitung Skor (Hanya Pilihan Ganda)
+        let correctCount = 0;
+        let mcqTotal = 0;
+        let essayAnswerText = "";
+
+        questions.forEach((q, idx) => {
+            if (q.type === 'mcq') {
+                mcqTotal++;
+                if (userAnswers[idx] === q.answer) correctCount++;
+            } else if (q.type === 'essay') {
+                essayAnswerText = userAnswers[idx] || "[Tidak ada jawaban]";
+            }
+        });
+        
+        // Skala nilai 100 (Hanya dari bobot MCQ)
+        const finalScore = mcqTotal > 0 ? Math.round((correctCount / mcqTotal) * 100) : 0;
+
+        // Tampilkan Hasil
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        
+        document.getElementById('final-score').innerText = finalScore;
+        document.getElementById('correct-count').innerText = `Benar ${correctCount} dari ${mcqTotal} Soal Pilihan Ganda`;
+        document.getElementById('essay-answer-display').innerText = essayAnswerText;
+    }
+
+    init();
+</script>
+
+</body>
+</html>
