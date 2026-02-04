@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konsep Dasar Algoritma - Kelas X</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; scroll-behavior: smooth; }
+        
+        /* Custom Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0; /* Initially hidden */
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Interactive elements */
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Quiz selection styling */
+        input[type="radio"]:checked + span {
+            color: #2563EB;
+            font-weight: 700;
+        }
+        input[type="radio"]:checked + span::before {
+            content: "✓ ";
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur shadow-sm border-b border-slate-200">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="font-bold text-blue-600 text-xl"><i class="fas fa-code mr-2"></i>Informatika X - FRancis</div>
+            <div class="text-sm font-medium text-slate-500">Materi: Konsep Dasar Algoritma</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-24 pb-12 px-4 text-center bg-gradient-to-b from-blue-50 to-white">
+        <div class="max-w-3xl mx-auto animate-fade-up">
+            <span class="inline-block py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-xs font-bold tracking-wider mb-4 uppercase">Pertemuan 1</span>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">Berpikir Seperti Komputer</h1>
+            <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                Sebelum kita menulis kode yang rumit, kita harus belajar menyusun logika. 
+                Algoritma bukan hanya tentang komputer, tapi tentang <span class="font-bold text-blue-600">memecahkan masalah</span>.
+            </p>
+            <a href="#intro" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                Mulai Belajar <i class="fas fa-arrow-down ml-2"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- 1. Introduction (Apersepsi) -->
+    <section id="intro" class="py-16 px-4 max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6 animate-fade-up delay-100">
+                <h2 class="text-3xl font-bold text-slate-800">Apa itu Algoritma?</h2>
+                <p class="text-slate-600">Bayangkan kamu ingin membuat <span class="font-semibold text-yellow-600">Mi Instan</span>. Kamu pasti mengikuti langkah-langkah tertentu, kan?</p>
+                <ul class="space-y-2 text-slate-600 list-disc list-inside bg-slate-100 p-4 rounded-lg">
+                    <li>Rebus air hingga mendidih.</li>
+                    <li>Masukkan mi ke dalam air.</li>
+                    <li>Tuang bumbu ke piring.</li>
+                    <li>Tiriskan mi dan aduk dengan bumbu.</li>
+                </ul>
+                <p class="text-slate-600 font-medium">Itulah Algoritma! Urutan langkah logis untuk menyelesaikan masalah.</p>
+            </div>
+            <div class="bg-blue-600 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden animate-fade-up delay-200">
+                <div class="absolute top-0 right-0 opacity-10 text-9xl"><i class="fas fa-robot"></i></div>
+                <h3 class="text-xl font-bold mb-4">Definisi Formal</h3>
+                <p class="mb-4 opacity-90">
+                    "Algoritma adalah urutan langkah-langkah logis dan sistematis yang digunakan untuk memecahkan suatu masalah tertentu."
+                </p>
+                <div class="mt-6 border-t border-blue-400 pt-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-lightbulb text-yellow-300 text-2xl"></i>
+                        <span class="text-sm font-medium">Algoritma adalah resepnya, Program (Coding) adalah masakannya.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Karakteristik (Dengan Animasi & Contoh Kontinu) -->
+    <section class="py-16 bg-slate-100 px-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">Karakteristik Algoritma Baik</h2>
+                <p class="text-slate-500 mt-2">Contoh Kasus: <span class="font-bold text-blue-600">Menghitung Luas Persegi Panjang</span></p>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Card 1: Input -->
+                <div class="bg-white p-6 rounded-xl shadow-sm interactive-card border-t-4 border-blue-500 animate-fade-up delay-100">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-4">
+                        <i class="fas fa-sign-in-alt text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">1. Input</h3>
+                    <p class="text-sm text-slate-500 mb-3">Memiliki data awal yang dimasukkan untuk diolah.</p>
+                    <div class="bg-blue-50 p-3 rounded text-xs text-blue-800 font-mono">
+                        User memasukkan:<br>Panjang = 10<br>Lebar = 5
+                    </div>
+                </div>
+
+                <!-- Card 2: Process -->
+                <div class="bg-white p-6 rounded-xl shadow-sm interactive-card border-t-4 border-green-500 animate-fade-up delay-200">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+                        <i class="fas fa-cogs text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">2. Proses</h3>
+                    <p class="text-sm text-slate-500 mb-3">Langkah pemrosesan data yang jelas dan logis.</p>
+                    <div class="bg-green-50 p-3 rounded text-xs text-green-800 font-mono">
+                        Hitung:<br>Luas = Panjang * Lebar<br>(Luas = 10 * 5)
+                    </div>
+                </div>
+
+                <!-- Card 3: Output -->
+                <div class="bg-white p-6 rounded-xl shadow-sm interactive-card border-t-4 border-purple-500 animate-fade-up delay-300">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-4">
+                        <i class="fas fa-sign-out-alt text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">3. Output</h3>
+                    <p class="text-sm text-slate-500 mb-3">Hasil dari pemrosesan yang ditampilkan.</p>
+                    <div class="bg-purple-50 p-3 rounded text-xs text-purple-800 font-mono">
+                        Tampilkan:<br>"Luas Persegi adalah 50"
+                    </div>
+                </div>
+
+                <!-- Card 4: Finiteness -->
+                <div class="bg-white p-6 rounded-xl shadow-sm interactive-card border-t-4 border-red-500 animate-fade-up delay-400">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-4">
+                        <i class="fas fa-stop-circle text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">4. Finiteness</h3>
+                    <p class="text-sm text-slate-500 mb-3">Algoritma harus berhenti setelah tugas selesai.</p>
+                    <div class="bg-red-50 p-3 rounded text-xs text-red-800 font-mono">
+                        Selesai.<br>Program berhenti, tidak loading selamanya.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Tiga Pilar Logika -->
+    <section class="py-16 px-4 max-w-5xl mx-auto">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-slate-800">3 Pilar Logika Pemrograman</h2>
+            <p class="text-slate-500 mt-2">Pahami 3 konsep ini, maka kamu bisa coding bahasa apapun.</p>
+        </div>
+        
+        <div class="space-y-4">
+            <!-- Sequential -->
+            <div class="flex group cursor-pointer" onclick="toggleDetail('seq-detail')">
+                <div class="flex-shrink-0 mr-4 flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1</div>
+                    <div class="h-full w-0.5 bg-blue-200 my-2"></div>
+                </div>
+                <div class="bg-white border border-slate-200 p-5 rounded-lg w-full hover:border-blue-300 transition-colors shadow-sm">
+                    <h3 class="font-bold text-lg flex justify-between items-center">
+                        Runtutan (Sequence)
+                        <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                    </h3>
+                    <div id="seq-detail" class="hidden mt-3 text-slate-600 text-sm border-t pt-3">
+                        Perintah dijalankan satu per satu dari atas ke bawah. <br>
+                        <em>Contoh: Buka pintu -> Masuk -> Tutup pintu.</em>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selection -->
+            <div class="flex group cursor-pointer" onclick="toggleDetail('sel-detail')">
+                <div class="flex-shrink-0 mr-4 flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center font-bold">2</div>
+                    <div class="h-full w-0.5 bg-yellow-200 my-2"></div>
+                </div>
+                <div class="bg-white border border-slate-200 p-5 rounded-lg w-full hover:border-yellow-300 transition-colors shadow-sm">
+                    <h3 class="font-bold text-lg flex justify-between items-center">
+                        Percabangan (Selection)
+                        <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                    </h3>
+                    <div id="sel-detail" class="hidden mt-3 text-slate-600 text-sm border-t pt-3">
+                        Program memilih langkah berdasarkan kondisi (Jika... Maka...). <br>
+                        <em>Contoh: JIKA hujan MAKA pakai payung. JIKA TIDAK, pakai topi.</em>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Iteration -->
+            <div class="flex group cursor-pointer" onclick="toggleDetail('iter-detail')">
+                <div class="flex-shrink-0 mr-4 flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">3</div>
+                </div>
+                <div class="bg-white border border-slate-200 p-5 rounded-lg w-full hover:border-green-300 transition-colors shadow-sm">
+                    <h3 class="font-bold text-lg flex justify-between items-center">
+                        Perulangan (Iteration)
+                        <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                    </h3>
+                    <div id="iter-detail" class="hidden mt-3 text-slate-600 text-sm border-t pt-3">
+                        Mengulang perintah yang sama beberapa kali. <br>
+                        <em>Contoh: Lari keliling lapangan sebanyak 5 kali.</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Activity: Unplugged Coding (Multi-Level) -->
+    <section class="py-16 bg-slate-900 text-white px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <span class="text-green-400 font-mono text-sm tracking-widest">ACTIVITY: UNPLUGGED CODING</span>
+                    <h2 class="text-3xl font-bold mt-2">Susun Algoritmanya!</h2>
+                    <p class="text-slate-400 mt-2">Urutkan langkah agar menjadi logis.</p>
+                </div>
+                <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider">Level</span>
+                    <div class="font-bold text-2xl text-blue-400" id="level-indicator">1 / 3</div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 max-w-lg mx-auto">
+                <div class="mb-4 text-center">
+                    <h3 class="text-xl font-bold text-white mb-1" id="scenario-title">Loading...</h3>
+                    <p class="text-sm text-slate-400 italic" id="scenario-desc">Loading...</p>
+                </div>
+
+                <ul id="sortable-list" class="space-y-3">
+                    <!-- Items will be injected by JS -->
+                </ul>
+                
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <button onclick="checkOrder()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                        Cek Jawaban
+                    </button>
+                    <button onclick="resetGame()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300">
+                        <i class="fas fa-undo mr-2"></i>Reset
+                    </button>
+                </div>
+
+                <!-- Level Controls -->
+                <div class="mt-4 flex justify-between items-center pt-4 border-t border-slate-700">
+                    <button onclick="changeLevel(-1)" class="text-slate-400 hover:text-white text-sm flex items-center gap-2">
+                        <i class="fas fa-chevron-left"></i> Soal Sebelumnya
+                    </button>
+                    <button onclick="changeLevel(1)" class="text-blue-400 hover:text-blue-300 text-sm font-bold flex items-center gap-2">
+                        Soal Berikutnya <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div id="game-feedback" class="mt-4 text-center font-medium hidden"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Quiz (Expanded to 5 Questions) -->
+    <section class="py-16 px-4 max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold text-slate-800 mb-8 border-l-4 border-blue-600 pl-4">Evaluasi Pemahaman</h2>
+        
+        <form id="quiz-form" class="space-y-8" onsubmit="event.preventDefault();">
+            <!-- Q1 -->
+            <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                <p class="font-medium text-lg mb-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold mr-2">1</span>Manakah yang BUKAN karakteristik algoritma yang baik?</p>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q1" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Langkah-langkahnya jelas (Unambiguous)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q1" value="correct" class="w-5 h-5 text-blue-600">
+                        <span>Berjalan tanpa henti (Infinite Loop)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q1" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Memiliki input dan output</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                <p class="font-medium text-lg mb-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold mr-2">2</span>"Jika nilai > 75 maka Lulus, jika tidak maka Remedial". Ini adalah contoh logika...</p>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q2" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Runtutan (Sequence)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q2" value="correct" class="w-5 h-5 text-blue-600">
+                        <span>Percabangan (Selection)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q2" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Perulangan (Iteration)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                <p class="font-medium text-lg mb-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold mr-2">3</span>Pada studi kasus "Menghitung Luas Persegi Panjang", manakah yang termasuk data INPUT?</p>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q3" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Rumus: P * L</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q3" value="correct" class="w-5 h-5 text-blue-600">
+                        <span>Nilai Panjang dan Lebar</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q3" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Hasil hitungan luas</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                <p class="font-medium text-lg mb-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold mr-2">4</span>Manakah langkah pertama yang paling logis untuk algoritma "Login ke Aplikasi"?</p>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q4" value="correct" class="w-5 h-5 text-blue-600">
+                        <span>Memasukkan Username dan Password</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q4" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Menekan tombol Login</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q4" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Masuk ke halaman Beranda</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                <p class="font-medium text-lg mb-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold mr-2">5</span>Mengapa kita perlu membuat algoritma sebelum menulis program (koding)?</p>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q5" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Agar komputer bekerja lebih cepat</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q5" value="wrong" class="w-5 h-5 text-blue-600">
+                        <span>Agar kode terlihat lebih panjang dan keren</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                        <input type="radio" name="q5" value="correct" class="w-5 h-5 text-blue-600">
+                        <span>Agar logika penyelesaian masalah jelas dan terstruktur</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="button" onclick="submitQuiz()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-lg hover:bg-slate-900 transition-colors shadow-lg transform hover:-translate-y-1">
+                Kirim Jawaban <i class="fas fa-paper-plane ml-2"></i>
+            </button>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 py-12 text-center border-t border-slate-200">
+        <p class="text-slate-600 mb-4">Materi Selanjutnya:</p>
+        <h3 class="text-2xl font-bold text-blue-600 mb-6">Notasi Algoritma: Flowchart</h3>
+        <p class="text-slate-400 text-sm">&copy; 2026 Modul Informatika Kelas X - by : <b>FRancis M S (FR)</b></p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // --- Logic Accordion ---
+        function toggleDetail(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        // --- Multi-Level Game Logic ---
+        const scenarios = [
+            {
+                id: 0,
+                title: "Ganjil atau Genap?",
+                desc: "Urutkan logika komputer untuk menentukan jenis bilangan.",
+                steps: [
+                    { id: 1, text: "Mulai" },
+                    { id: 2, text: "Input Bilangan" },
+                    { id: 3, text: "Hitung Sisa Bagi dengan 2" },
+                    { id: 4, text: "Jika Sisa = 0 maka Genap, jika tidak Ganjil" },
+                    { id: 5, text: "Selesai" }
+                ],
+                correctOrder: [1, 2, 3, 4, 5]
+            },
+            {
+                id: 1,
+                title: "Login Instagram",
+                desc: "Bagaimana urutan logika saat kamu mau masuk ke akun medsos?",
+                steps: [
+                    { id: 1, text: "Buka Aplikasi" },
+                    { id: 2, text: "Input Username & Password" },
+                    { id: 3, text: "Tekan Tombol Login" },
+                    { id: 4, text: "Sistem Memvalidasi Data" },
+                    { id: 5, text: "Masuk ke Beranda" }
+                ],
+                correctOrder: [1, 2, 3, 4, 5]
+            },
+            {
+                id: 2,
+                title: "Memasak Telur Dadar",
+                desc: "Algoritma kehidupan sehari-hari juga penting!",
+                steps: [
+                    { id: 1, text: "Siapkan Telur & Wajan" },
+                    { id: 2, text: "Pecahkan & Kocok Telur" },
+                    { id: 3, text: "Panaskan Minyak" },
+                    { id: 4, text: "Goreng hingga matang" },
+                    { id: 5, text: "Sajikan di Piring" }
+                ],
+                correctOrder: [1, 2, 3, 4, 5]
+            }
+        ];
+
+        let currentLevel = 0;
+        let currentOrder = [];
+
+        function initLevel(levelIndex) {
+            // Boundary checks
+            if (levelIndex < 0) levelIndex = 0;
+            if (levelIndex >= scenarios.length) levelIndex = scenarios.length - 1;
+            
+            currentLevel = levelIndex;
+            const scenario = scenarios[currentLevel];
+            
+            // Update UI Title/Desc
+            document.getElementById('level-indicator').innerText = `${currentLevel + 1} / ${scenarios.length}`;
+            document.getElementById('scenario-title').innerText = scenario.title;
+            document.getElementById('scenario-desc').innerText = scenario.desc;
+            
+            // Prepare Data (Deep copy & Shuffle)
+            currentOrder = JSON.parse(JSON.stringify(scenario.steps));
+            shuffleArray(currentOrder);
+            
+            // Ensure not solved initially
+            const correctIds = scenario.correctOrder;
+            if (JSON.stringify(currentOrder.map(x => x.id)) === JSON.stringify(correctIds)) {
+                shuffleArray(currentOrder);
+            }
+            
+            renderList();
+            
+            // Hide feedback
+            const fb = document.getElementById('game-feedback');
+            fb.classList.add('hidden');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function renderList() {
+            const listEl = document.getElementById('sortable-list');
+            listEl.innerHTML = '';
+            
+            currentOrder.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = "bg-slate-700 p-3 rounded flex justify-between items-center group select-none transition-all hover:bg-slate-600";
+                li.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-6 h-6 rounded bg-slate-600 group-hover:bg-slate-500 text-xs flex items-center justify-center text-slate-300 font-mono">${index + 1}</span>
+                        <span class="text-slate-200 text-sm font-medium">${item.text}</span>
+                    </div>
+                    <div class="flex flex-col gap-1 opacity-50 group-hover:opacity-100">
+                        <button onclick="moveItem(${index}, -1)" class="text-slate-400 hover:text-white ${index === 0 ? 'invisible' : ''}"><i class="fas fa-chevron-up"></i></button>
+                        <button onclick="moveItem(${index}, 1)" class="text-slate-400 hover:text-white ${index === currentOrder.length - 1 ? 'invisible' : ''}"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                `;
+                listEl.appendChild(li);
+            });
+        }
+
+        function moveItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= currentOrder.length) return;
+            [currentOrder[index], currentOrder[newIndex]] = [currentOrder[newIndex], currentOrder[index]];
+            renderList();
+            document.getElementById('game-feedback').classList.add('hidden');
+        }
+
+        function checkOrder() {
+            const currentIds = currentOrder.map(item => item.id);
+            const correctIds = scenarios[currentLevel].correctOrder;
+            const isCorrect = JSON.stringify(currentIds) === JSON.stringify(correctIds);
+            
+            const fb = document.getElementById('game-feedback');
+            fb.classList.remove('hidden');
+            
+            if (isCorrect) {
+                fb.className = "mt-4 text-center font-bold text-green-400 p-3 bg-green-400/10 rounded-lg border border-green-400/20";
+                fb.innerHTML = `<i class='fas fa-check-circle mr-2'></i>Benar! Lanjut ke level berikutnya?`;
+            } else {
+                fb.className = "mt-4 text-center font-bold text-red-400 p-3 bg-red-400/10 rounded-lg border border-red-400/20";
+                fb.innerHTML = `<i class='fas fa-times-circle mr-2'></i>Masih salah. Coba perhatikan urutan logikanya.`;
+            }
+        }
+
+        function resetGame() {
+            initLevel(currentLevel);
+        }
+
+        function changeLevel(dir) {
+            initLevel(currentLevel + dir);
+        }
+
+        // --- Quiz Logic (Updated for 5 questions) ---
+        function submitQuiz() {
+            // Get all selected answers
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const q3 = document.querySelector('input[name="q3"]:checked');
+            const q4 = document.querySelector('input[name="q4"]:checked');
+            const q5 = document.querySelector('input[name="q5"]:checked');
+            
+            // Check if all answered
+            if (!q1 || !q2 || !q3 || !q4 || !q5) {
+                alert("Mohon isi semua 5 soal sebelum mengirim jawaban.");
+                return;
+            }
+
+            // Calculate Score (20 points each)
+            let score = 0;
+            if (q1.value === 'correct') score += 20;
+            if (q2.value === 'correct') score += 20;
+            if (q3.value === 'correct') score += 20;
+            if (q4.value === 'correct') score += 20;
+            if (q5.value === 'correct') score += 20;
+
+            let msg = "";
+            let icon = "";
+            
+            if (score === 100) {
+                msg = "Luar Biasa! Kamu sudah menguasai konsep dasar algoritma.";
+                icon = "🏆";
+            } else if (score >= 60) {
+                msg = "Bagus! Kamu sudah cukup paham, tapi teliti lagi ya.";
+                icon = "👍";
+            } else {
+                msg = "Jangan menyerah! Coba baca materi di atas sekali lagi.";
+                icon = "📚";
+            }
+
+            // Simple alert result
+            alert(`${icon} Nilai Akhir: ${score} / 100\n\n${msg}`);
+        }
+
+        // Initialize first level on load
+        window.onload = function() {
+            initLevel(0);
+        };
+
+    </script>
+</body>
+</html>
